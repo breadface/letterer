@@ -5,8 +5,10 @@ import {
   StyleSheet,
   PanResponder,
   Animated,
+  Dimensions
 } from 'react-native'
-import Dimensions from 'Dimensions'
+
+import shallowequal from 'shallowequal'
 
 const { width, height } = Dimensions.get('window')
 
@@ -24,6 +26,7 @@ class DraggableTile extends Component {
     this.state = {
       pan: new Animated.ValueXY(),
       opacity: 1,
+      initialPosition: this.props.position
     }
 
     this.panResponder = PanResponder.create({
@@ -45,7 +48,7 @@ class DraggableTile extends Component {
           x: moveX - locationX,
           y: moveY - locationY
         }
-        console.log(moveX, moveY, locationX, locationY, 'move, location')
+
         this.setState({opacity: 1})
         Animated.spring(this.state.pan, {
           toValue: { x: 0, y: 0 }
@@ -57,16 +60,31 @@ class DraggableTile extends Component {
     })
   }
 
+  componentWillReceiveProps(nextProps){
+    let { initialPosition } = this.state
+
+    if(!shallowequal(nextProps.position, this.props.position)){
+      console.log("true for ", nextProps.position)
+      Animated.spring(this.state.pan, {
+        toValue: {
+          x: nextProps.position.x - initialPosition.y,
+          y: nextProps.position.y - initialPosition.x
+        }
+      }).start()
+    }
+
+  }
+
   render() {
-    let { letter, position } = this.props
-    let { opacity, pan } = this.state
+    let { letter } = this.props
+    let { opacity, pan, initialPosition } = this.state
     return (
       <View
         style={ [
             tileStyle.container, {
               position: 'absolute',
-              top: position.y,
-              left: position.x
+              top: initialPosition.y,
+              left: initialPosition.x
             }
           ]
         }

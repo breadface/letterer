@@ -7,22 +7,14 @@ import {
 } from 'react-native'
 
 import DraggableTile from './DraggableTile'
-
 const { width, height } = Dimensions.get('window')
-const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const letterList = letters.split('').map(letter => {
-  return {
-    letter,
-    done: null
-  }
-})
-const randomLetter = ['', letters.substr(Math.floor(Math.random() * 26), 1), '']
 
 type Position = {
   x: number,
   y: number
 }
 
+const DISTANCE = 10
 const calculatePosition = (index: number): Position => {
   let boxWidth = width / 6
   let x = (index % 6) * boxWidth
@@ -33,9 +25,19 @@ const calculatePosition = (index: number): Position => {
 
 class Board extends Component {
   render() {
+    let { randomLetter, letters, onRelease } = this.props
     const dropzoneValues = []
-    const handleRelease = draggedTile => cordinates => {
-      console.log('moved cordinates', cordinates, draggedTile)
+    const handleRelease = draggedTile => tileCordinates => {
+      let closeMatch = dropzoneValues.find(zone => {
+        let xDiff = Math.abs(zone.layout.x - tileCordinates.x)
+        let yDiff = Math.abs(zone.layout.y - tileCordinates.y)
+        return (
+          xDiff < DISTANCE && yDiff < DISTANCE
+        )
+      })
+      if(closeMatch) {
+        onRelease(draggedTile, closeMatch.layout)
+      }
     }
 
     const updateDropzoneLayout = index => ref => {
@@ -50,7 +52,7 @@ class Board extends Component {
         })
       })
     }
-    console.log(randomLetter, 'randomLetter')
+    
     return (
       <View style={boardStyle.container}>
         <View style={boardStyle.dropZone}>
@@ -67,6 +69,7 @@ class Board extends Component {
                     height: width/6,
                     borderWidth: StyleSheet.hairlineWidth,
                   }}
+                  ref={updateDropzoneLayout(index)}
                 >
                   <Text
                     children={value}
@@ -82,12 +85,12 @@ class Board extends Component {
           top: height - ((width/6)*5),
         }}>
           {
-            letterList.map((value, index) =>
+            letters.map((tile, index) =>
               <DraggableTile
                 key={index}
-                letter={value.letter}
-                position={value.done || calculatePosition(index)}
-                onRelease={handleRelease(value.letter)}
+                letter={tile.letter}
+                position={tile.done || calculatePosition(index)}
+                onRelease={handleRelease(tile)}
               />
             )
           }
