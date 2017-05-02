@@ -10,9 +10,19 @@ import Board from './components/game/Board'
 class Letterer extends Component {
   render() {
     return (
-      <Board />
+      <View style={style.container}>
+        <Board />
+      </View>
     );
   }
 }
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
+})
 
 export default Letterer

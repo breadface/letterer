@@ -1,20 +1,22 @@
 import React, { Component } from 'react'
 import {
   View,
+  Text,
   StyleSheet,
+  Dimensions,
 } from 'react-native'
-import Dimensions from 'Dimensions'
 
 import DraggableTile from './DraggableTile'
 
 const { width, height } = Dimensions.get('window')
-let letters = 'abcdefghijklmnopqrstuvwxyz'
+const letters = 'abcdefghijklmnopqrstuvwxyz'
 const letterList = letters.split('').map(letter => {
   return {
     letter,
     done: null
   }
 })
+const randomLetter = ['', letters.substr(Math.floor(Math.random() * 26), 1), '']
 
 type Position = {
   x: number,
@@ -41,16 +43,44 @@ const calculatePosition = (index: number): Position => {
 
 class Board extends Component {
   render() {
-    let tiles = letterList.map((value, index) =>
+    const dropzoneValues = []
+    const handleRelease = draggedTile => cordinates => {
+      console.log('moved cordinates', cordinates, draggedTile)
+    }
+
+    const updateDropzoneLayout = index => ref => {
+      if (ref === null || index ===  1)
+        return
+
+      setTimeout(() => {
+        ref.measure((ox, oy, refWidth, refHeight, x, y) => {
+          dropzoneValues.push({
+            layout: { x, y, width: refWidth, height: refHeight }
+          })
+        })
+      })
+    }
+
+    const tiles = letterList.map((value, index) =>
       <DraggableTile
         key={index}
         letter={value.letter}
         position={value.done || calculatePosition(index)}
+        onRelease={handleRelease(value.letter)}
       />
     )
 
+    const dropZone = randomLetter.map((value, index) => {
+      return (
+        <View key={index}>
+          <Text>{value}</Text>
+        </View>
+      )
+    })
+
     return (
       <View style={boardStyle.container}>
+        { dropZone }
         { tiles }
       </View>
     )
