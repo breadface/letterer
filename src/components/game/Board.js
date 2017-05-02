@@ -9,7 +9,7 @@ import {
 import DraggableTile from './DraggableTile'
 
 const { width, height } = Dimensions.get('window')
-const letters = 'abcdefghijklmnopqrstuvwxyz'
+const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const letterList = letters.split('').map(letter => {
   return {
     letter,
@@ -25,17 +25,7 @@ type Position = {
 
 const calculatePosition = (index: number): Position => {
   let boxWidth = width / 6
-
-  /*
-    calculate the x position of the tiles - maps [0,1,2,3,4,5,6,7,8,9,10,11,12] to
-    [0,1,2,3,4,5,0,1,2,3,4,5,0]
-  */
   let x = (index % 6) * boxWidth
-
-  /*
-    calculate the y position of the tiles - maps [0,1,2,3,4,5,6,7,8,9,10,11,12] to
-    [0,0,0,0,0,0,1,1,1,1,1,1]
-  */
   let y = Math.floor(index / 6) * boxWidth
 
   return { x, y }
@@ -60,28 +50,48 @@ class Board extends Component {
         })
       })
     }
-
-    const tiles = letterList.map((value, index) =>
-      <DraggableTile
-        key={index}
-        letter={value.letter}
-        position={value.done || calculatePosition(index)}
-        onRelease={handleRelease(value.letter)}
-      />
-    )
-
-    const dropZone = randomLetter.map((value, index) => {
-      return (
-        <View key={index}>
-          <Text>{value}</Text>
-        </View>
-      )
-    })
-
+    console.log(randomLetter, 'randomLetter')
     return (
       <View style={boardStyle.container}>
-        { dropZone }
-        { tiles }
+        <View style={boardStyle.dropZone}>
+          {
+            randomLetter.map((value, index) => {
+              return (
+                <View
+                  key={index}
+                  style={{
+                    backgroundColor: 'white',
+                    width: width/6,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: width/6,
+                    borderWidth: StyleSheet.hairlineWidth,
+                  }}
+                >
+                  <Text
+                    children={value}
+                  />
+                </View>
+              )
+            })
+          }
+        </View>
+        <View style={{
+          position: 'absolute',
+          left: 0,
+          top: height - ((width/6)*5),
+        }}>
+          {
+            letterList.map((value, index) =>
+              <DraggableTile
+                key={index}
+                letter={value.letter}
+                position={value.done || calculatePosition(index)}
+                onRelease={handleRelease(value.letter)}
+              />
+            )
+          }
+        </View>
       </View>
     )
   }
@@ -90,7 +100,17 @@ class Board extends Component {
 const boardStyle = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropZone: {
     flexDirection: 'row',
+    backgroundColor: 'blue',
+    marginBottom: 200,
+    width,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 })
 

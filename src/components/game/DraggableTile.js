@@ -46,6 +46,7 @@ class DraggableTile extends Component {
           y: moveY - locationY
         }
         console.log(moveX, moveY, locationX, locationY, 'move, location')
+        this.setState({opacity: 1})
         Animated.spring(this.state.pan, {
           toValue: { x: 0, y: 0 }
         }).start()
@@ -62,10 +63,10 @@ class DraggableTile extends Component {
     return (
       <View
         style={ [
-              tileStyle.container, {
-                position: 'absolute',
-                top: position.y,
-                left: position.x
+            tileStyle.container, {
+              position: 'absolute',
+              top: position.y,
+              left: position.x
             }
           ]
         }
@@ -95,7 +96,7 @@ const tileStyle = StyleSheet.create({
     width: width / 6,
     height: width / 6,
     backgroundColor: '#E7D299',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   text: {
     fontSize: 25,
