@@ -6,47 +6,32 @@ import {
 } from 'react-native';
 
 import Board from './components/game/Board'
-
+import {withState} from 'recompose'
 
 const words = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-class Letterer extends Component {
-  constructor(props){
-    super(props)
+const spelt_word = ['', words.substr(Math.floor(Math.random() * 26), 1), ''].map(letter => letter);
+const enhance = withState(
+  'spelt_word', 
+  'updateWordsDone', 
+  spelt_word
+);
 
-    this.state = {
-      letters: words.split('').map(letter => {
-        return {
-          letter,
-          done: null
-        }
-      })
-    }
-  }
+const Letterer = enhance(({spelt_word, updateWordsDone}) => 
+  <Board
+    spelt_word={spelt_word}    
+    onRelease={(draggedTile, position) => {
+       updateWordsDone(spelt_word => spelt_word.map((tile, index) => {
+         if (position === index) {
+            return draggedTile
+         } else {
+           return tile
+         }
+       }))
+    }}
+  />
+);
 
-  render() {
-    let { letters } = this.state
-    const randomLetter = ['', words.substr(Math.floor(Math.random() * 26), 1), '']
-    let updateWordsDone = (draggedTile, endPosition) => {
-       this.setState({
-         letters: letters.map(tile => {
-           return draggedTile !== tile ? tile : {
-             ...tile,
-             done: endPosition
-           }
-         })
-       })
-    }
-
-    return (
-      <Board
-        letters={letters}
-        randomLetter={randomLetter}
-        onRelease={updateWordsDone}
-      />
-    );
-  }
-}
 
 const style = StyleSheet.create({
   container: {

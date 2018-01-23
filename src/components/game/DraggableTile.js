@@ -30,7 +30,8 @@ class DraggableTile extends Component {
     }
 
     this.panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      // onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: () => true,
       onPanResponderMove: Animated.event([null, {
         dx: this.state.pan.x,
         dy: this.state.pan.y
@@ -42,20 +43,23 @@ class DraggableTile extends Component {
       },
       onPanResponderRelease: (evt, gestureState) => {
         let { nativeEvent: { locationX, locationY } } = evt
-        let { moveX, moveY } = gestureState
-
+        let { moveX, moveY, dx,  dy} = gestureState
+        console.log('moveX, moveY:', moveX, moveY)
+        console.log('dx, dy:', dx, dy)
+        console.log('this.state.initialPosition:', this.state.initialPosition)
+        console.log('evt.nativeEvent, gestureState:', evt.nativeEvent, gestureState)
         const cordinates = {
           x: moveX - locationX,
           y: moveY - locationY
         }
 
-        this.setState({opacity: 1})
+        this.props.onRelease(cordinates)
+        // this.setState({opacity: 1})
         Animated.spring(this.state.pan, {
           toValue: { x: 0, y: 0 }
         }).start()
 
         //pass cordinates back to calculate position of moved tile
-        this.props.onRelease(cordinates)
       }
     })
   }
@@ -80,14 +84,11 @@ class DraggableTile extends Component {
     let { opacity, pan, initialPosition } = this.state
     return (
       <View
-        style={ [
-            tileStyle.container, {
+        style={{
               position: 'absolute',
               top: initialPosition.y,
               left: initialPosition.x
-            }
-          ]
-        }
+            }}
       >
         <Animated.View
           { ...this.panResponder.panHandlers }
